@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class ShowAllInHierachy : Editor {
 
@@ -18,6 +19,13 @@ public class ShowAllInHierachy : Editor {
         foreach (Transform child in transform) {
             child.hideFlags &= ~HideFlags.HideInHierarchy;
             ShowAllTransform(child);
+        }
+    }
+
+    [MenuItem("Custom/RemoveNTC")]
+    static void RemoveAllNetworkTransformChild() {
+        foreach (NetworkTransformChild child in Selection.activeGameObject.GetComponents<NetworkTransformChild>()) {
+            DestroyImmediate(child);
         }
     }
 }
