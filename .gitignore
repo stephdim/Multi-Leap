@@ -69,3 +69,6 @@ Build/
 
 *.sublime-project
 *.sublime-workspace
+ProjectSettings/ProjectSettings.asset
+ProjectSettings/ProjectVersion.txt
+ProjectSettings/UnityConnectSettings.asset
