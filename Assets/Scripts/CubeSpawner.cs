@@ -24,7 +24,7 @@ public class CubeSpawner : NetworkBehaviour {
 
 	[Command]
 	public void CmdSpawn() {
-		GameObject go = (GameObject)Instantiate(prefab, spawnPosition, Quaternion.identity);
+		GameObject go = (GameObject)Instantiate(prefab, transform.position + transform.forward*.25f, Quaternion.identity);
 		NetworkServer.SpawnWithClientAuthority(go, connectionToClient);
 	}
 

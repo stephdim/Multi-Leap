@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Leap.Unity.Interaction;
+using UnityEngine;
 using UnityEngine.Networking;
 
 public class NetworkCube : NetworkBehaviour {
@@ -16,20 +17,28 @@ public class NetworkCube : NetworkBehaviour {
 		_networkIdentity = GetComponent<NetworkIdentity>();
 	}
 
+	static void SetRigidbodyEnabled(Rigidbody r, bool enabled) {
+		r.isKinematic = !enabled;
+		r.useGravity = enabled;
+	}
+
 	public override void OnStartClient() {
-		_rigidbody.isKinematic = true; // isKinematic <=> enabled
+		SetRigidbodyEnabled(_rigidbody, false);
 	}
 
 	// If we have the local authority, disable trigering and enable physics interactions
 	public override void OnStartAuthority() {
+		InteractionManager interactionManager = FindObjectOfType<InteractionManager>();
+        GetComponent<InteractionBehaviour>().Manager = interactionManager;
+
 		_collider.isTrigger = false;
-		_rigidbody.isKinematic = false; // isKinematic <=> enabled
+		SetRigidbodyEnabled(_rigidbody, true);
 	}
 
 	// If we haven't the local authority, disable physics interactions and enable trigering
 	public override void OnStopAuthority() {
 		_collider.isTrigger = true;
-		_rigidbody.isKinematic = true; // isKinematic <=> enabled
+		SetRigidbodyEnabled(_rigidbody, false);
 	}
 
 	// On each collision, the local player is changed
@@ -46,8 +55,12 @@ public class NetworkCube : NetworkBehaviour {
 		// we haven't curently the authority on the object, so we can't send command to server
 		// remove the authority from the previous owner
 		// assign the authority to ourself
-		CubeSpawner cubeSpawner = collider.GetComponentInParent<CubeSpawner>();
-        if (cubeSpawner) cubeSpawner.SetAuthority(GetComponent<NetworkIdentity>());
+		// CubeSpawner cubeSpawner = collider.GetComponentInParent<CubeSpawner>();
+		if (!collider.gameObject.name.Contains("BrushHand")) return;
+
+		CubeSpawner cubeSpawner = FindObjectOfType<InteractionManager>() // TODO cache
+			.GetComponentInParent<CubeSpawner>();
+		if (cubeSpawner) cubeSpawner.SetAuthority(GetComponent<NetworkIdentity>());
     }
 
 	void Update() {
