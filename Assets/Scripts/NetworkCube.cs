@@ -1,4 +1,5 @@
-﻿using Leap.Unity.Interaction;
+﻿using Leap;
+using Leap.Unity.Interaction;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -6,62 +7,69 @@ public class NetworkCube : NetworkBehaviour {
 
 	[SerializeField] Material red, blue, green;
 	Renderer _renderer;
-	Rigidbody _rigidbody;
-	Collider _collider;
+	//Collider _collider;
 	NetworkIdentity _networkIdentity;
+	InteractionBehaviour _interactionBehaviour;
 
 	void Awake() {
 		_renderer = GetComponent<Renderer>();
-		_rigidbody = GetComponent<Rigidbody>();
-		_collider = GetComponent<Collider>();
+		//_collider = GetComponentInChildren<Collider>();
 		_networkIdentity = GetComponent<NetworkIdentity>();
-	}
+		_interactionBehaviour = GetComponent<InteractionBehaviour>();
+    }
 
-	static void SetRigidbodyEnabled(Rigidbody r, bool enabled) {
-		r.isKinematic = !enabled;
-		r.useGravity = enabled;
+	void SetRigidbodyEnabled(bool enabled) {
+		_interactionBehaviour.isKinematic = !enabled;
+		_interactionBehaviour.useGravity = enabled;
 	}
 
 	public override void OnStartClient() {
-		SetRigidbodyEnabled(_rigidbody, false);
+		InteractionManager interactionManager = FindObjectOfType<InteractionManager>();
+		GetComponent<InteractionBehaviour>().Manager = interactionManager;
+
+		//SetRigidbodyEnabled(false);
 	}
 
 	// If we have the local authority, disable trigering and enable physics interactions
 	public override void OnStartAuthority() {
-		InteractionManager interactionManager = FindObjectOfType<InteractionManager>();
-        GetComponent<InteractionBehaviour>().Manager = interactionManager;
-
-		_collider.isTrigger = false;
-		SetRigidbodyEnabled(_rigidbody, true);
+		//_collider.isTrigger = false;
+		SetRigidbodyEnabled(true);
 	}
 
 	// If we haven't the local authority, disable physics interactions and enable trigering
 	public override void OnStopAuthority() {
-		_collider.isTrigger = true;
-		SetRigidbodyEnabled(_rigidbody, false);
+		//_collider.isTrigger = true;
+		SetRigidbodyEnabled(false);
 	}
 
-	// On each collision, the local player is changed
-	void OnTriggerEnter(Collider collider) {
+	public void OnGraspBegin() {
 		if (hasAuthority) return;
-
-		// remove the authority from the previous owner
-		// CmdRemoveAuthority(_networkIdentity);
-
-		// assign the authority to ourself
-		// CmdAssignAuthority(_networkIdentity);
-
-		// HACK
-		// we haven't curently the authority on the object, so we can't send command to server
-		// remove the authority from the previous owner
-		// assign the authority to ourself
-		// CubeSpawner cubeSpawner = collider.GetComponentInParent<CubeSpawner>();
-		if (!collider.gameObject.name.Contains("BrushHand")) return;
-
 		CubeSpawner cubeSpawner = FindObjectOfType<InteractionManager>() // TODO cache
 			.GetComponentInParent<CubeSpawner>();
-		if (cubeSpawner) cubeSpawner.SetAuthority(GetComponent<NetworkIdentity>());
-    }
+		if (cubeSpawner) cubeSpawner.SetAuthority(_networkIdentity);
+	}
+
+	public void OnGraspEnd(Hand lastHand) {
+		//if (!hasAuthority || isServer) return;
+
+		//if (GetComponent<NetworkCubeInteractionBehaviour>().IsBeingGrasped) // TODO cache
+		//	return;
+
+		//// Transfert rigidbody informations (velocity, angularVelocity) to server
+		//Rigidbody rigidbody = GetComponent<Rigidbody>(); // TODO cache
+  //      CmdTransfertRigidbodyState(rigidbody.velocity, rigidbody.angularVelocity);
+
+		//CubeSpawner cubeSpawner = FindObjectOfType<InteractionManager>() // TODO cache
+		//.GetComponentInParent<CubeSpawner>();
+		//if (cubeSpawner) cubeSpawner.RemoveAuthority(_networkIdentity);
+	}
+
+	[Command]
+	void CmdTransfertRigidbodyState(Vector3 velocity, Vector3 angularVelocity) {
+		GetComponent<Rigidbody>().velocity = velocity;
+		GetComponent<Rigidbody>().angularVelocity= angularVelocity;
+	}
+
 
 	void Update() {
 		if (hasAuthority) {
