@@ -121,7 +121,6 @@ namespace Leap.Unity {
             BuildSpheres();
             BuildCylinders();
             updateArmVisibility();
-
             _hasGeneratedMeshes = false;
         }
 

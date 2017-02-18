@@ -9,6 +9,8 @@ public class EnableOnLocalPlayer : NetworkBehaviour {
     Camera playerCam;
 	[SerializeField]
 	GameObject[] rigidHands;
+    [SerializeField]
+    LinkHandSpheres[] linkHandSpheres;
 
     public override void OnStartLocalPlayer() {
         leapController.SetActive(true);
@@ -16,5 +18,8 @@ public class EnableOnLocalPlayer : NetworkBehaviour {
 		foreach(var rigidHand in rigidHands) {
 			rigidHand.SetActive(true);
 		}
+        foreach (var link in linkHandSpheres) {
+            link.enabled = false;
+        }
     }
 }
