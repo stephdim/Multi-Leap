@@ -79,13 +79,26 @@ public class NetworkCube : NetworkBehaviour {
 		}
 	}
 
-	//[Command]
-	//void CmdRemoveAuthority(NetworkIdentity grabID) {
-	//	grabID.RemoveClientAuthority(grabID.clientAuthorityOwner);
-	//}
+    //[Command]
+    //void CmdRemoveAuthority(NetworkIdentity grabID) {
+    //	grabID.RemoveClientAuthority(grabID.clientAuthorityOwner);
+    //}
 
-	//[Command]
-	//void CmdAssignAuthority(NetworkIdentity grabID) {
-	//	grabID.AssignClientAuthority(connectionToClient);
-	//}
+    //[Command]
+    //void CmdAssignAuthority(NetworkIdentity grabID) {
+    //	grabID.AssignClientAuthority(connectionToClient);
+    //}
+
+    void OnTriggerEnter(Collider other) {
+        if (other.name == "DestroyTrigger") {
+            CmdDestroy();
+        }
+    }
+
+    [Command]
+    void CmdDestroy() {
+        _networkIdentity.RemoveClientAuthority(_networkIdentity.clientAuthorityOwner);
+        GameObject go = NetworkServer.FindLocalObject(_networkIdentity.netId);
+        NetworkServer.Destroy(go);
+    }
 }
