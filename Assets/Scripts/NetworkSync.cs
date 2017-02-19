@@ -23,7 +23,8 @@ public class NetworkSync : MonoBehaviour {
                         NetworkTransformChild ntc = gameObject.AddComponent<NetworkTransformChild>();
                         ntc.target = child;
                         ntc.syncRotationAxis = NetworkTransform.AxisSyncMode.None;
-                        ntc.sendInterval = 1/29f;
+                        ntc.sendInterval = 1/14f;
+                        ntc.movementThreshold = 0;
                     }
                 }
             }

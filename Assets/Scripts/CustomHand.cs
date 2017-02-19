@@ -70,6 +70,10 @@ namespace Leap.Unity {
             set { }
         }
 
+        public Color PlayerColor {
+            get; set;
+        }
+
         public override bool SupportsEditorPersistence() {
             return true;
         }
@@ -121,7 +125,6 @@ namespace Leap.Unity {
             BuildSpheres();
             BuildCylinders();
             updateArmVisibility();
-
             _hasGeneratedMeshes = false;
         }
 
@@ -249,7 +252,7 @@ namespace Leap.Unity {
 
             Transform[] joints = GetComponentsInChildren<Transform>().Where(c => c.name == "Joint").ToArray();
             int k = 0;
-
+            //PlayerColor = new Color(UnityEngine.Random.Range(0f, 1), UnityEngine.Random.Range(0f, 1), UnityEngine.Random.Range(0f, 1));
             //Create spheres for finger joints
             List<Finger> fingers = hand_.Fingers;
             for (int i = 0; i < fingers.Count; i++) {
@@ -257,13 +260,20 @@ namespace Leap.Unity {
                 for (int j = 0; j < 4; j++) {
                     int key = getFingerJointIndex((int)finger.Type, j);
                     _jointSpheres[key] = joints[k++]; /*createSphere("Joint", SPHERE_RADIUS);*/
+                    _jointSpheres[key].GetComponent<Renderer>().material = _material;
+                    _jointSpheres[key].GetComponent<Renderer>().material.color = PlayerColor;
                 }
             }
 
             mockThumbJointSphere = transform.FindChild("MockJoint");//createSphere("MockJoint", SPHERE_RADIUS);
             palmPositionSphere = transform.FindChild("PalmPosition");//createSphere("PalmPosition", PALM_RADIUS);
             wristPositionSphere = transform.FindChild("WristPosition");//createSphere("WristPosition", SPHERE_RADIUS);
-
+            mockThumbJointSphere.GetComponent<Renderer>().material = _material;
+            palmPositionSphere.GetComponent<Renderer>().material = _material;
+            wristPositionSphere.GetComponent<Renderer>().material = _material;
+            mockThumbJointSphere.GetComponent<Renderer>().material.color = PlayerColor;
+            palmPositionSphere.GetComponent<Renderer>().material.color = PlayerColor;
+            wristPositionSphere.GetComponent<Renderer>().material.color = PlayerColor;
             //armFrontLeft = createSphere("ArmFrontLeft", SPHERE_RADIUS, true);
             //armFrontRight = createSphere("ArmFrontRight", SPHERE_RADIUS, true);
             //armBackLeft = createSphere("ArmBackLeft", SPHERE_RADIUS, true);
@@ -274,7 +284,7 @@ namespace Leap.Unity {
 
             Transform[] fingerJoints = GetComponentsInChildren<Transform>().Where(c => c.name == "Finger Joint").ToArray();
             int k = 0;
-
+            
             //Create cylinders between finger joints
             for (int i = 0; i < 5; i++) {
                 for (int j = 0; j < 3; j++) {
