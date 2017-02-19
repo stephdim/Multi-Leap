@@ -22,9 +22,12 @@ public class LinkHandSpheres : NetworkBehaviour {
     private Transform wristPositionSphere;
 
     // Use this for initialization
-    void Start () {
+    void Awake () {
 		_jointSpheres = new Transform[4 * 5];
         mockThumbJointSphere = transform.FindChild("MockJoint");
+        palmPositionSphere = transform.FindChild("PalmPosition");
+        wristPositionSphere = transform.FindChild("WristPosition");
+
         for (int i = 0; i < _jointSpheres.Length; ++i) {
             _jointSpheres[i] = transform.GetChild(i);
         }
@@ -32,6 +35,7 @@ public class LinkHandSpheres : NetworkBehaviour {
         _sphereATransforms = new List<Transform>();
         _sphereBTransforms = new List<Transform>();
         _hasGeneratedMeshes = false;
+
         BuildCylinders();
     }
 
@@ -165,5 +169,14 @@ public class LinkHandSpheres : NetworkBehaviour {
         mesh.UploadMeshData(true);
 
         return mesh;
+    }
+
+    public void SetHandColor(Color color) {
+        for (int i = 0; i < _jointSpheres.Length; ++i) {
+            _jointSpheres[i].GetComponent<Renderer>().material.color = color;
+        }
+        mockThumbJointSphere.GetComponent<Renderer>().material.color = color;
+        palmPositionSphere.GetComponent<Renderer>().material.color = color;
+        wristPositionSphere.GetComponent<Renderer>().material.color = color;
     }
 }

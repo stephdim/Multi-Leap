@@ -6,7 +6,8 @@ using UnityEngine.Networking;
 public class NetworkCube : NetworkBehaviour {
 
 	[SerializeField] Material red, blue, green;
-	Renderer _renderer;
+    Color playerColor;
+    Renderer _renderer;
 	//Collider _collider;
 	NetworkIdentity _networkIdentity;
 	InteractionBehaviour _interactionBehaviour;

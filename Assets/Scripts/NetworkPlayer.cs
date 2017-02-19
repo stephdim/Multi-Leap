@@ -6,36 +6,35 @@ using UnityEngine.Networking;
 using Leap.Unity;
 
 public class NetworkPlayer : NetworkBehaviour {
+
     [SyncVar]
-    public string playerID;
-    Camera playerCam;
+    public Color playerColor;
 
-    public InteractionManager interactionManager;
-    [SerializeField]
-    GameObject _leapPrefab;
-
-    void Awake() {
-        playerCam = GetComponent<Camera>();
-        //if (isLocalPlayer) {
-        //    GameObject.Find("LeapHandController").transform.SetParent(transform);
-        //}
-        //else {
-            playerCam.enabled = false;
-        //}
+    void Start() {
+        //playerColor.Callback += OnColorSet;
+        SetColor();
     }
 
-    //[Command]
-    //void CmdSetPlayerID(string newID) {
-    //    playerID = newID;
-    //}
+    public override void OnStartClient() {
+        if (isServer) {
+            CmdPlayerColor();
+        }
+    }
 
-    public override void OnStartLocalPlayer() {
-        //GameObject.Find("LeapHandController").transform.SetParent(transform);
-        transform.GetChild(0).GetComponent<Renderer>().material.color = Color.blue;
-        GameObject leap = Instantiate<GameObject>(_leapPrefab);
-        leap.transform.parent = transform;
-        leap.transform.localPosition = Vector3.zero;
-        leap.transform.localRotation = Quaternion.identity;
-        playerCam.enabled = true;
+    [Command]
+    void CmdPlayerColor() {
+        playerColor = new Color(Random.Range(0f, 1), Random.Range(0f, 1), Random.Range(0f, 1), 1);
+    }
+
+    void SetColor() {
+        if (isLocalPlayer) {
+            foreach (CustomHand hand in GetComponentsInChildren<CustomHand>()) {
+                hand.PlayerColor = playerColor;
+            }
+        } else {
+            foreach (LinkHandSpheres hand in GetComponentsInChildren<LinkHandSpheres>()) {
+                hand.SetHandColor(playerColor);
+            }
+        }
     }
 }
